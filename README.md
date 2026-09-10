@@ -14,8 +14,12 @@ module Service Workers, Web Crypto and WebAssembly.
 
 ## Install for your team
 
-Nontechnical teammates can ask their agent: “Install the encrypt-static-site skill
-from this repository for me.” Provide the repository URL (or its downloaded folder).
+Nontechnical teammates can paste this into Codex or Claude Code:
+
+> Install the encrypt-static-site skill from https://github.com/digitalgarage-creative/encrypt-static-site for me.
+
+This repository is private. Teammates need repository access through their GitHub
+account, and their agent may ask them to sign in before it can download the skill.
 The agent can carry out the installation below. Team maintainers can also preinstall
 it in the shared project. Everyday users do not need to run terminal commands.
 
@@ -169,18 +173,16 @@ contain synthetic content and a public **test-only** passphrase; never reuse it.
 Development dependencies are only for testing and are not copied into the skill.
 GitHub Actions runs these checks on changes.
 
-## Put the skill on GitHub
+## Team repository
 
-This directory is prepared as a shareable repository; no remote repository is
-created automatically. Create an empty repository in your chosen account/team,
-initialize Git here if needed, and push the tracked files. Share the repository URL
-and the install command above. Review licensing before publishing outside the team;
-the included MIT license permits reuse and modification.
+The shared repository is [digitalgarage-creative/encrypt-static-site](https://github.com/digitalgarage-creative/encrypt-static-site).
+Installation copies the skill locally; publishing a change here does not update
+teammates' installed copies automatically. A teammate can ask their agent to update
+this skill from the repository, keeping a backup until the update is verified.
 
 Keep this reusable skill repository separate from protected project source and
-from a site's publishing repository. Do not make a private project public to host
-its encrypted build. Before the first push, check `git status` and confirm no
-password files, private projects, plaintext build outputs or node_modules are staged.
+from a site's publishing repository. Never commit site passwords, private site
+files, plaintext build outputs, or `node_modules/` here.
 
 ## License
 
