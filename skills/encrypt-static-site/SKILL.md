@@ -36,21 +36,23 @@ in conversation history and may appear in agent tool records; suggest a unique
 site password. This is informational, not a separate confirmation step. Continue
 when the user has already supplied a password.
 
-Infer the project, build and output settings. Ask only for missing decisions that
-affect the result, in everyday language (for example, where they want to host it).
+Use the currently opened project as the target. The final output is always
+`<opened-project>/encrypted/`; do not ask where to save it, offer destination
+choices, or request confirmation of this path. Infer build settings. Ask only for
+missing information that affects the result, such as a required hosting base path.
 After completion, identify the protected folder or published link, what was tested,
 and any actual limitation. Do not repeat the password in the final response.
 
 ## Inspect and normalize
 
-1. Identify the target project, hosting URL/base path, and intended output location.
-   Infer them from the request and repository where possible. For GitHub project
-   Pages, use `/repository-name/`; domain-root hosting uses `/`. Build-time asset
-   URLs must agree with that base. Honor the user's exact designated output path.
-   If none is specified, use `<target-project>/encrypted/`, inside that project's
-   directory. Never put the deliverable beside the project, in the skills folder,
-   or in a shared parent directory merely to satisfy the engine's overlap check.
-   Resolve relative output paths against the target project, not the agent's cwd.
+1. Resolve the currently opened project's root from the app/workspace context.
+   Fix the final output at `<opened-project>/encrypted/`. This is not a user-facing
+   setting. Do not use the skill's directory, a build subdirectory, a shared parent,
+   or a sibling project. If no project is open or multiple roots are ambiguous,
+   clarify only which project to process; never ask for an output destination.
+   Infer the hosting URL/base where possible. For GitHub project Pages, use
+   `/repository-name/`; domain-root hosting uses `/`. Build-time asset URLs must
+   agree with that base.
 2. Run `node "$SKILL_DIR/scripts/inspect.mjs" /absolute/project` and read
    [project adapters](references/adapters.md) for the detected framework. The
    inspector is read-only and heuristic: review concrete files and existing build
@@ -65,7 +67,7 @@ and any actual limitation. Do not repeat the password in the final response.
    staging directory into the designated project output. Exclude previous generated
    output, temporary files and development files from the input. This separates
    the engine's input/output while keeping the deliverable inside the project.
-   For `dist/`, `build/` or `out/`, the default `<project>/encrypted/` is already
+   For `dist/`, `build/` or `out/`, the fixed `<project>/encrypted/` is already
    separate. Do not package the repo. Clean up agent-created staging after testing.
 4. Explain blockers using file paths and plain language. Do not silently remove
    authentication, APIs, Server Actions, or other behavior to make export succeed.
@@ -78,13 +80,14 @@ and any actual limitation. Do not repeat the password in the final response.
 
 ## Existing output
 
-Keep the same designated output path on repeat runs. The engine refuses an existing
+Keep `<opened-project>/encrypted/` on every run. The engine refuses an existing
 output directory to prevent accidental mixing; this is not permission to choose a
 new location. Build and verify in an agent-created temporary directory first. When
 updating a confirmed generated deployment, keep a recoverable backup outside the
 upload folder and replace the designated output only after verification succeeds.
 Do not overwrite a directory containing unrelated user files; explain that concrete
-conflict and ask how to proceed. Do not silently append a suffix, choose a sibling,
+conflict and stop until those files are safely resolved; do not offer another
+output location. Do not silently append a suffix, choose a sibling,
 or relocate the finished site. If the designated path is not writable, report that
 constraint rather than changing the destination. Never use the project root itself
 as a replaceable deployment directory.

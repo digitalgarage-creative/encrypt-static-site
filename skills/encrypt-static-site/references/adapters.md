@@ -1,9 +1,9 @@
 # Project adapters
 
-The final output defaults to `<project>/encrypted/`. An explicit user output path
-wins. The engine's static input directory is not necessarily the project root:
+The final output is fixed at `<opened-project>/encrypted/`. Do not ask the user
+to choose or confirm a destination. The engine's static input directory is not necessarily the project root:
 for standalone HTML, stage source assets in a temporary directory, then encrypt to
-the chosen output inside the project. Never solve overlap by relocating the user's
+that fixed output inside the opened project. Never solve overlap by relocating the user's
 deliverable. Exclude earlier generated deployments from the staged input.
 
 The agent is the adapter layer; `inspect.mjs` supplies hints. The encryption engine

@@ -53,8 +53,9 @@ $encrypt-static-site ここに自分で決めたパスワード
 日本語で「このサイト全体を暗号化してください」と依頼し、AIに聞かれてから
 パスワードを伝えることもできます。
 
-AIがサイトの確認・暗号化・動作確認を行います。保存先を指定しない場合、
-完成したファイルは**そのプロジェクト内の `encrypted` フォルダ**に保存されます。
+AIがサイトの確認・暗号化・動作確認を行います。完成したファイルは、必ず
+**開いているプロジェクト内の `encrypted` フォルダ**に保存されます。
+保存先を選んだり、指定したりする必要はありません。
 元のサイトのファイルは変更しません。
 
 ### 3. 確認・共有する
@@ -168,8 +169,8 @@ python3 skills/encrypt-static-site/scripts/password-pipe.py protect \
 Build the app for the same base path first. Add `--spa` only for history-based
 single-page routers. The input must be clean browser output; the output must be a
 new directory separate from the static input, whose parent already exists.
-The normal destination is `<your-project>/encrypted/`; an output folder you specify
-is honored exactly. For standalone HTML projects, the agent stages input elsewhere
+The destination is fixed at `<opened-project>/encrypted/`. The agent does not
+ask users to choose or confirm a destination. For standalone HTML projects, the agent stages input elsewhere
 so the encrypted result can still live inside your project. Repeat runs preserve
 that destination, verifying a replacement before swapping a generated deployment. Python 3 is only needed
 for the hidden prompt helper; Node also accepts `--password-file` or
