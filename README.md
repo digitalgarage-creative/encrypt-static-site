@@ -1,5 +1,7 @@
 # Encrypt Static Site
 
+[日本語：インストールと使い方](#日本語インストールと使い方) · [English: Installation](#install-for-your-team)
+
 A portable **Codex + Claude Code skill** that builds a static website, encrypts
 its files, and generates a password-unlock application for static hosting.
 The reusable skill lives in [`skills/encrypt-static-site`](skills/encrypt-static-site).
@@ -11,6 +13,74 @@ Suitable for evaluating internal previews and semi-private static sites. It uses
 Argon2id and AES-GCM envelope encryption; the public folder contains no original
 site files in plaintext. It needs HTTPS or localhost and a browser supporting
 module Service Workers, Web Crypto and WebAssembly.
+
+## 日本語：インストールと使い方
+
+Webサイト全体をパスワードで保護する、Codex・Claude Code向けのスキルです。
+HTMLだけでなく、画像・動画・CSSなどのファイルもまとめて暗号化します。
+**GitHubアカウントや、プログラミング・ターミナルの知識は不要です。**
+CodexまたはClaude Codeを利用できる環境をご用意ください。
+
+### 1. スキルをインストールする
+
+CodexまたはClaude Codeのチャット欄に、次の文章をコピーして送信してください。
+
+```text
+https://github.com/digitalgarage-creative/encrypt-static-site にある encrypt-static-site スキルを、今使っているCodexまたはClaude Codeで使えるようにインストールしてください。日本語で案内してください。
+```
+
+インストール作業はAIが行います。操作の許可を求める画面が表示された場合は、
+内容を確認して進めてください。完了したら、CodexまたはClaude Codeで新しいチャットを開いてください。
+
+### 2. サイトを暗号化する
+
+保護したいサイトのプロジェクトを開き、チャット欄に次のように入力します。
+`ここに自分で決めたパスワード`の部分は、実際に使いたいパスワードに置き換えてください。
+**以下はターミナルではなく、AIへのチャット入力です。**
+
+Claude Codeの場合：
+
+```text
+/encrypt-static-site ここに自分で決めたパスワード
+```
+
+Codexの場合：
+
+```text
+$encrypt-static-site ここに自分で決めたパスワード
+```
+
+日本語で「このサイト全体を暗号化してください」と依頼し、AIに聞かれてから
+パスワードを伝えることもできます。
+
+AIがサイトの確認・暗号化・動作確認を行います。保存先を指定しない場合、
+完成したファイルは**そのプロジェクト内の `encrypted` フォルダ**に保存されます。
+元のサイトのファイルは変更しません。
+
+### 3. 確認・共有する
+
+AIが用意したプレビューで、決めたパスワードを入力して確認します。
+通常、ページを移動するたびにパスワードを入力する必要はありません。
+時間が経った場合やブラウザを再起動した場合は、再度入力してください。
+
+`encrypted` フォルダを作成しただけでは、サイトはインターネットに公開されません。
+共有したい場合は、AIに「この暗号化したサイトを公開する方法を案内してください」と伝えてください。
+公開するのは `encrypted` フォルダの中身だけです。
+フォルダ内のHTMLをダブルクリックして開く方法では動作しません。
+
+パスワードは、このサイト専用の長く推測されにくいものを使ってください。
+チャットに入力したパスワードは会話履歴に残ります。
+
+### スキルを更新する
+
+スキルは自動更新されません。更新したい場合は、チャットで次のように依頼してください。
+
+```text
+https://github.com/digitalgarage-creative/encrypt-static-site から、インストール済みの encrypt-static-site スキルを最新版に更新してください。更新前のコピーをバックアップし、動作確認してください。日本語で案内してください。
+```
+
+更新後は新しいチャットを開いてください。すでに作成した暗号化サイトにも更新内容を
+反映したい場合は、そのプロジェクトで再度暗号化を依頼してください。
 
 ## Install for your team
 
