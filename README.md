@@ -18,8 +18,10 @@ Nontechnical teammates can paste this into Codex or Claude Code:
 
 > Install the encrypt-static-site skill from https://github.com/digitalgarage-creative/encrypt-static-site for me.
 
-This repository is private. Teammates need repository access through their GitHub
-account, and their agent may ask them to sign in before it can download the skill.
+This repository is public. Teammates do not need a GitHub account to download or
+install the skill. The agent can clone the public HTTPS URL without GitHub login
+or download the repository ZIP. Codex or Claude Code must already be available
+on their computer.
 The agent can carry out the installation below. Team maintainers can also preinstall
 it in the shared project. Everyday users do not need to run terminal commands.
 
