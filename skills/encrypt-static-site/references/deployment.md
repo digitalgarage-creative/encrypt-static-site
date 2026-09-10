@@ -9,7 +9,12 @@ root-only server's URL does not do this automatically.
 
 Exercise the real app in an isolated browser context:
 
-- Wrong passphrase: generic error, no protected DOM or successful asset response.
+- Wrong passphrase: show exactly `Wrong password`, restore the enabled Unlock
+  button, and allow a correct-password retry without reloading. No protected DOM
+  or successful asset response should appear.
+- Downloading: show progress separately from password checking. A stalled download
+  must time out visibly and allow retry; network failures must not be labelled as
+  a wrong password.
 - Correct passphrase: expected HTML, CSS, fonts, binary images and local JSON.
 - ES module imports and a user action that loads a dynamic chunk.
 - Direct nested URL before unlocking, internal navigation, reload and browser back.

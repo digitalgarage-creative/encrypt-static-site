@@ -9,11 +9,12 @@ export async function browser() {
   if (!type) throw Error('Unknown TEST_BROWSER');
   return type.launch({ headless: true, ...(process.env.CHROME_PATH && name === 'chromium' ? { executablePath: process.env.CHROME_PATH } : {}) });
 }
-export async function serve(root, base = '/') {
+export async function serve(root, base = '/', intercept) {
   const requests = [];
   const server = createServer(async (req, res) => {
     const url = new URL(req.url, 'http://localhost');
     requests.push(url.pathname);
+    if (intercept && await intercept(req, res, url)) return;
     try {
       if (!url.pathname.startsWith(base)) { res.writeHead(404); res.end(); return; }
       const relative = decodeURIComponent(url.pathname.slice(base.length));

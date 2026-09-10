@@ -7,9 +7,32 @@ let worker;
 function message(data) {
   return new Promise((resolve, reject) => {
     const channel = new MessageChannel();
-    const timer = setTimeout(() => { channel.port1.close(); reject(Error('Unlock timed out. Reload and try again.')); }, 120000);
-    channel.port1.onmessage = event => { clearTimeout(timer); channel.port1.close(); resolve(event.data); };
-    worker.postMessage(data, [channel.port2]);
+    let timer;
+    const finish = (error, result) => {
+      clearTimeout(timer);
+      channel.port1.close();
+      error ? reject(error) : resolve(result);
+    };
+    const armTimer = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => finish(Error('Unlock timed out. Reload and try again.')), 45000);
+    };
+    armTimer();
+    channel.port1.onmessage = event => {
+      if (event.data?.progress) {
+        armTimer();
+        status.textContent = event.data.progress === 'download'
+          ? `Downloading encrypted site… ${(event.data.bytes / (1024 * 1024)).toFixed(1)} MB`
+          : 'Checking password…';
+        return;
+      }
+      finish(null, event.data);
+    };
+    channel.port1.onmessageerror = () => finish(Error('Unable to unlock. Reload and try again.'));
+    try {
+      const active = navigator.serviceWorker.controller || worker;
+      active.postMessage(data, [channel.port2]);
+    } catch { finish(Error('Unable to unlock. Reload and try again.')); }
   });
 }
 try {
@@ -33,12 +56,21 @@ try {
 form.addEventListener('submit', async event => {
   event.preventDefault();
   button.disabled = true;
-  status.textContent = 'Decrypting…';
+  status.textContent = 'Checking password…';
+  input.removeAttribute('aria-invalid');
   const password = input.value;
   input.value = '';
   try {
     const result = await message({ type: 'unlock', password });
-    if (!result.ok) throw Error('Unable to unlock. Check the passphrase, or reload if this deployment has changed.');
+    if (!result.ok) {
+      if (result.code === 'WRONG_PASSWORD') {
+        input.setAttribute('aria-invalid', 'true');
+        throw Error('Wrong password');
+      }
+      if (result.code === 'DOWNLOAD_TIMEOUT') throw Error('Download timed out. Check your connection and try again.');
+      if (result.code === 'BUSY') throw Error('An unlock attempt is still running. Wait a moment and try again.');
+      throw Error('Unable to unlock. Reload and try again.');
+    }
     const target = location.pathname.startsWith(BASE + '_sealed/') ? BASE : location.pathname + location.search + location.hash;
     location.replace(target);
   } catch (error) { status.textContent = error.message; button.disabled = false; input.focus(); }

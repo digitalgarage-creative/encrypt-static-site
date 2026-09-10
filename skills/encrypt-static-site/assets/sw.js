@@ -30,14 +30,22 @@ self.addEventListener('message', event => {
     return;
   }
   if (event.data?.type !== 'unlock' || busy || typeof event.data.password !== 'string' || event.data.password.length > 1024) {
-    port.postMessage({ ok: false }); return;
+    port.postMessage({ ok: false, code: busy ? 'BUSY' : 'INVALID_REQUEST' }); return;
   }
   busy = true;
   const attempt = generation;
   event.waitUntil((async () => {
     let bytes;
+    const controller = new AbortController();
+    let downloadTimer;
+    const downloadProgress = length => {
+      clearTimeout(downloadTimer);
+      downloadTimer = setTimeout(() => controller.abort(), 30000);
+      port.postMessage({ progress: 'download', bytes: length });
+    };
     try {
-      const res = await fetch(BASE + '_sealed/protected.bundle', { cache: 'no-store' });
+      downloadProgress(0);
+      const res = await fetch(BASE + '_sealed/protected.bundle', { cache: 'no-store', signal: controller.signal });
       if (!res.ok) throw Error('Bundle unavailable');
       // Bound the download as well as the parsed/decrypted data.
       const reader = res.body.getReader();
@@ -49,7 +57,10 @@ self.addEventListener('message', event => {
         length += value.length;
         if (length > MAX_BUNDLE * 1.4 + 8192) { await reader.cancel(); throw Error('Bundle too large'); }
         parts.push(value);
+        downloadProgress(length);
       }
+      clearTimeout(downloadTimer);
+      port.postMessage({ progress: 'decrypt' });
       const body = new Uint8Array(length);
       let offset = 0;
       for (const part of parts) { body.set(part, offset); offset += part.length; }
@@ -62,9 +73,10 @@ self.addEventListener('message', event => {
       wipe();
       files = next;
       port.postMessage({ ok: true });
-    } catch {
-      port.postMessage({ ok: false });
+    } catch (error) {
+      port.postMessage({ ok: false, code: error.code === 'WRONG_PASSWORD' ? 'WRONG_PASSWORD' : controller.signal.aborted ? 'DOWNLOAD_TIMEOUT' : 'UNLOCK_FAILED' });
     } finally {
+      clearTimeout(downloadTimer);
       event.data.password = '';
       bytes?.fill(0);
       busy = false;

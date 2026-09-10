@@ -28,8 +28,14 @@ for (const base of ['/', '/team-preview/']) test(`browser static runtime at ${ba
   const context = await b.newContext();
   const page = await context.newPage();
   await unlock(page, server.url, 'incorrect test passphrase');
-  await page.getByText('Unable to unlock.', { exact: false }).waitFor();
+  await page.getByText('Wrong password', { exact: true }).waitFor();
   assert.equal(await page.locator('h1').textContent(), 'Protected site');
+  assert.equal(await page.locator('button[type=submit]').isEnabled(), true);
+  assert.equal(await page.locator('#password').getAttribute('aria-invalid'), 'true');
+  await page.locator('#password').fill('another incorrect password');
+  await page.locator('button[type=submit]').click();
+  await page.getByText('Wrong password', { exact: true }).waitFor();
+  assert.equal(await page.locator('button[type=submit]').isEnabled(), true);
   await page.locator('#password').fill(password);
   await page.locator('button[type=submit]').click();
   await page.getByText('module:dynamic:private local data', { exact: true }).waitFor();
@@ -88,4 +94,33 @@ for (const base of ['/', '/team-preview/']) test(`browser static runtime at ${ba
     await cdp.detach();
   }
   await context.close();
+});
+
+test('stalled download times out visibly and allows a successful retry', async t => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'sealed-timeout-'));
+  const input = path.join(dir, 'input');
+  await mkdir(input);
+  await writeFile(path.join(input, 'index.html'), '<h1>Recovered site</h1>');
+  const output = path.join(dir, 'public');
+  await protect(input, output, password);
+  let stall = true;
+  const server = await serve(output, '/', (req, res, url) => {
+    if (url.pathname.endsWith('/protected.bundle') && stall) {
+      stall = false;
+      res.writeHead(200, {'content-type': 'application/json'});
+      res.write('{');
+      return true;
+    }
+    return false;
+  });
+  const b = await browser();
+  t.after(async () => { await b.close(); await server.close(); await rm(dir, { recursive: true, force: true }); });
+  const page = await b.newPage();
+  await unlock(page, server.url);
+  await page.getByText('Downloading encrypted site…', {exact: false}).waitFor();
+  await page.getByText('Download timed out. Check your connection and try again.', {exact: true}).waitFor({timeout: 40000});
+  assert.equal(await page.locator('button[type=submit]').isEnabled(), true);
+  await page.locator('#password').fill(password);
+  await page.locator('button[type=submit]').click();
+  await page.getByRole('heading', {name: 'Recovered site'}).waitFor();
 });

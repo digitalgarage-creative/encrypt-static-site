@@ -19,7 +19,7 @@ test('envelope authenticates password, content, metadata; encryption is randomiz
   assert.notEqual(one.payload, two.payload);
   assert.notEqual(one.salt, two.salt);
   assert.deepEqual(await decryptEnvelope(one, password, argon2id), plain);
-  await assert.rejects(decryptEnvelope(one, 'wrong password', argon2id));
+  await assert.rejects(decryptEnvelope(one, 'wrong password', argon2id), error => error.code === 'WRONG_PASSWORD');
   for (const field of ['wrappedKey', 'payload']) {
     const altered = { ...one, [field]: (one[field][0] === 'A' ? 'B' : 'A') + one[field].slice(1) };
     await assert.rejects(decryptEnvelope(altered, password, argon2id));

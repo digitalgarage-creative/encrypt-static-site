@@ -48,7 +48,15 @@ export async function decryptEnvelope(e, password, argon2id) {
   validateEnvelope(e);
   const aad = encode(JSON.stringify(metadata(e)));
   const key = await derive(password, e.salt, argon2id);
-  const raw = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(e.wrapNonce), additionalData: aad }, key, unb64(e.wrappedKey)));
+  let raw;
+  try {
+    raw = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(e.wrapNonce), additionalData: aad }, key, unb64(e.wrappedKey)));
+  } catch (error) {
+    if (error.name !== 'OperationError') throw error;
+    const failure = Error('Wrong password');
+    failure.code = 'WRONG_PASSWORD';
+    throw failure;
+  }
   try {
     return new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(e.payloadNonce), additionalData: aad }, await aesKey(raw), unb64(e.payload)));
   } finally { raw.fill(0); }
