@@ -71,17 +71,6 @@ AIが用意したプレビューで、決めたパスワードを入力して確
 パスワードは、このサイト専用の長く推測されにくいものを使ってください。
 チャットに入力したパスワードは会話履歴に残ります。
 
-### スキルを更新する
-
-スキルは自動更新されません。更新したい場合は、チャットで次のように依頼してください。
-
-```text
-https://github.com/digitalgarage-creative/encrypt-static-site から、インストール済みの encrypt-static-site スキルを最新版に更新してください。更新前のコピーをバックアップし、動作確認してください。日本語で案内してください。
-```
-
-更新後は新しいチャットを開いてください。すでに作成した暗号化サイトにも更新内容を
-反映したい場合は、そのプロジェクトで再度暗号化を依頼してください。
-
 ## Install for your team
 
 Nontechnical teammates can paste this into Codex or Claude Code:
