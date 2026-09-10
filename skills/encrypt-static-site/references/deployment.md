@@ -1,6 +1,31 @@
 # Browser verification and deployment
 
-## Verify a specific project
+## Default bounded browser check
+
+Run the bundled `scripts/browser-check.mjs` once after engine verification, with
+`--input`, `--output`, `--base`, and `--password-stdin`. Pass the password through
+stdin using the same safe mechanism as encryption. Never put it in command arguments.
+The helper uses `playwright-core` and an existing browser; it does not download one.
+An optional `--executable-path` or `CHROME_PATH` selects a known browser executable.
+
+The JSON report has one of four outcomes:
+
+- `passed` (exit 0): wrong password, retry, source HTML, robots directives, a sampled
+  additional HTML page when available, and reload passed locally.
+- `unavailable` (exit 2): no compatible browser found or browser launch blocked.
+- `incomplete` (exit 2): the two-minute check budget expired.
+- `failed` (exit 1): an attempted check failed; inspect the named phase.
+
+The helper creates a temporary browser profile and a localhost server on a free
+port, then closes both. It blocks external page requests; a nonzero
+`externalRequestsBlocked` requires separate review for external integrations.
+It never prints the password or page contents. It reads the prepared input and
+encrypted output without modifying them. It does not test every route, interaction,
+mobile browser, or hosting provider. Do not present this smoke check as a full app audit.
+If browser infrastructure is unavailable, report that limitation promptly rather
+than installing extensions or inventing another driver.
+
+## Additional project checks when relevant
 
 Use a temporary localhost server rooted **only** at the generated output and
 mounted at the configured base path. A plain file:// URL does not work. For a

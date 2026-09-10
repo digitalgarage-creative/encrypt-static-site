@@ -94,7 +94,7 @@ node scripts/install.mjs --target both --scope user
 ```
 
 Use `--target codex` or `--target claude` to install for only one agent. The installer
-copies the self-contained skill and installs its locked encryption and HTML parser dependencies.
+copies the self-contained skill and installs its locked encryption, HTML parser, and browser-check dependencies.
 It does not overwrite existing skills. For an update, move the previous
 `encrypt-static-site` directory aside, install the new version, and keep the old
 copy until verified. Pin a reviewed repository commit/tag for team rollouts.
@@ -179,6 +179,9 @@ The encryption command performs cryptographic, prepared-package and public-file 
 receives a `noindex, nofollow, noarchive, nosnippet, noimageindex` robots meta tag,
 visible in its source after unlocking. Original files remain unchanged; other
 assets are packaged byte for byte.
+The bundled browser check uses an installed browser and an available local port,
+with a two-minute time limit. If a browser is unavailable, the agent reports that
+verification is incomplete instead of spending time configuring extensions.
 The agent must also test the actual project's encrypted output in a browser before
 calling that project deployment-ready. Upload **only the generated folder**.
 See [hosting and verification](skills/encrypt-static-site/references/deployment.md).

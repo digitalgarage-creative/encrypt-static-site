@@ -124,3 +124,24 @@ test('stalled download times out visibly and allows a successful retry', async t
   await page.locator('button[type=submit]').click();
   await page.getByRole('heading', {name: 'Recovered site'}).waitFor();
 });
+
+import { browserCheck } from '../skills/encrypt-static-site/scripts/browser-check.mjs';
+test('bundled helper verifies a site and reports unavailable browsers and time limits', async t => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'sealed-helper-'));
+  t.after(() => rm(dir, {recursive:true,force:true}));
+  const input=path.join(dir,'input'), output=path.join(dir,'public');
+  await mkdir(path.join(input,'en'),{recursive:true});
+  await writeFile(path.join(input,'index.html'), '<!doctype html><h1>Helper home</h1><a href="en/index.html">English</a>');
+  await writeFile(path.join(input,'en/index.html'), '<!doctype html><h1>Helper English</h1>');
+  await protect(input,output,password,{base:'/team/'});
+  const unavailable=await browserCheck({input,output,password,base:'/team/',executablePath:path.join(dir,'missing-browser')});
+  assert.equal(unavailable.status,'unavailable');
+  const report=await browserCheck({input,output,password,base:'/team/'});
+  assert.equal(report.status,'passed',JSON.stringify(report));
+  assert.equal(report.htmlPages,2);
+  const limited=await browserCheck({input,output,password,base:'/team/',timeoutMs:1});
+  assert.equal(limited.status,'incomplete');
+  await writeFile(path.join(input,'en/index.html'), '<h1>Changed source</h1>');
+  const failed=await browserCheck({input,output,password,base:'/team/'});
+  assert.equal(failed.status,'failed');
+});

@@ -146,13 +146,26 @@ and password arguments to recheck an existing deployment. Its report contains
 counts, never the password or protected samples. Sampling supplements structural
 validation; it is not a comprehensive secret scanner or security audit.
 
-Follow [browser checks and hosting](references/deployment.md). Serve **only the
-generated directory**, over localhost or HTTPS, at its configured base. Test the
-actual project with wrong and correct passwords, nested initial URLs, navigation,
-refresh, imports, fonts/images, local data fetches, and worker restart/relock.
-Check that plaintext asset URLs do not succeed against the actual public server.
-If browser testing is unavailable, distinguish engine verification from untested
-project behavior; do not claim deployment readiness for that project.
+Run `scripts/browser-check.mjs --input STATIC_INPUT --output ENCRYPTED_OUTPUT
+--base BASE --password-stdin` with the same password via subprocess stdin. This is
+the default browser check: it chooses a free localhost port, uses an isolated
+installed Chrome/Edge or cached Playwright Chromium, and stops within about two
+minutes plus cleanup. It requires no browser extension or custom test driver.
+Read [browser checks and hosting](references/deployment.md) for report meanings.
+
+Run this helper once. If an installed browser is at a known custom path, one retry
+with `--executable-path` is reasonable. If it reports unavailable or incomplete,
+stop browser setup and deliver the cryptographically verified output with browser
+verification explicitly marked incomplete. Do not cycle through embedded browsers,
+extensions, browser downloads, or write a custom CDP driver during a normal run.
+If it reports failed, investigate the named check; do not label a real failure as
+an unavailable browser or repeatedly rebuild without a concrete cause.
+
+The helper checks the encryption workflow, not every app interaction. Add focused
+checks only for identified project-specific behavior; do not run the skill's full
+framework regression suite for each user's site. Publishing still requires checks
+at the actual hosted URL. State which checks ran, and never claim an untested
+site or hosting configuration is deployment-ready.
 
 Give the user the exact output folder, tested behaviors, any compatibility limits,
 hosting steps and lock URL (`BASE/_sealed/index.html`, with one slash). Publish
