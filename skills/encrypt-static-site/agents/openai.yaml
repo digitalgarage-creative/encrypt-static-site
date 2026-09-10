@@ -1,0 +1,4 @@
+interface:
+  display_name: "Encrypt Static Site"
+  short_description: "Encrypt static sites for password-based access"
+  default_prompt: "Use $encrypt-static-site to protect this web project and prepare a verified static deployment."

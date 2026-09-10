@@ -1,0 +1,9 @@
+node_modules/
+.test-work/
+protected-site/
+.env
+.env.*
+*.password
+.DS_Store
+playwright-report/
+test-results/

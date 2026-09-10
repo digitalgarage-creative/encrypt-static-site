@@ -1,0 +1,19 @@
+{
+  "name": "encrypt-static-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test tests/engine.test.mjs",
+    "test:browser": "node --test tests/browser.test.mjs",
+    "test:frameworks": "node tests/frameworks.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0",
+    "next": "16.3.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "vite": "8.2.2"
+  }
+}
